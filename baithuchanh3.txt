@@ -1,0 +1,87 @@
+-- Câu 1
+
+SELECT hh.TenHH, ctgh.SLGiao, ctgh.DonGiaGiao
+FROM ChiTietGiaoHang ctgh
+JOIN HangHoa hh ON ctgh.MaHH = hh.MaHH
+JOIN PhieuGiaoHang pgh ON ctgh.MaGiao = pgh.MaGiao
+WHERE ddh.MaDH = 'DH01';
+
+-- Câu 2
+
+SELECT ddh.MaDH, ddh.NgayDat, kh.TenKH
+FROM DonDatHang ddh
+JOIN KhachHang kh ON ddh.MaKH = kh.MaKH
+LEFT JOIN PhieuGiaoHang pgh ON ddh.MaDH = pgh.MaDH
+WHERE pgh.MaDH IS NULL;
+
+-- Câu 3
+
+SELECT TenHH, DonGiaHH
+FROM HangHoa
+WHERE DonGiaHH = (SELECT MAX(DonGiaHH) FROM HangHoa);
+
+-- Câu 4
+
+SELECT kh.MaKH, kh.TenKH, COUNT(ddh.MaDH) AS SoLanDat
+FROM KhachHang kh
+LEFT JOIN DonDatHang ddh ON kh.MaKH = ddh.MaKH
+GROUP BY kh.MaKH, kh.TenKH;
+
+-- Câu 5
+
+SELECT pgh.MaGiao, pgh.NgayGiao, SUM(ctgh.SLGiao * ctgh.DonGiaGiao) AS TongTien
+FROM PhieuGiaoHang pgh
+JOIN ChiTietGiaoHang ctgh ON pgh.MaGiao = ctgh.MaGiao
+WHERE YEAR(pgh.NgayGiao) = 2012
+GROUP BY pgh.MaGiao, pgh.NgayGiao;
+
+-- Câu 6
+
+SELECT k.MaKH, k.TenKH, COUNT(d.MaDat) AS SoLanDat
+FROM KhachHang k
+JOIN DonDatHang d ON k.MaKH = d.MaKH
+GROUP BY k.MaKH, k.TenKH
+HAVING COUNT(d.MaDat) >= 2;
+
+-- Câu 7
+
+SELECT h.MaHH, h.TenHH, SUM(c.SLGiao) AS TongSLGiao
+FROM ChiTietGiaoHang c
+JOIN HangHoa h ON c.MaHH = h.MaHH
+GROUP BY h.MaHH, h.TenHH
+ORDER BY TongSLGiao DESC
+LIMIT 1;
+
+-- Câu 8
+
+UPDATE HangHoa
+SET SLCon = SLCon + 10
+WHERE MaHH LIKE 'M%';
+
+-- Câu 9
+
+SELECT * Into HangHoa_copy From HangHoa;
+DELETE HangHoa
+WHERE MaHH NOT IN (SELECT MaHH FROM ChiTietDatHang);
+INSERT INTO HangHoa
+SELECT * FROM HangHoa_copy
+WHERE MaHH NOT IN (SELECT MaHH FROM HangHoa);
+
+-- Câu 10
+
+UPDATE KhachHang
+SET DienThoai = 'Số điện thoại mới'
+WHERE MaKH = 'KH006';
+
+-- Câu 11
+
+UPDATE DonDatHang
+SET TinhTrang = NULL;
+
+-- Câu 12
+
+ALTER TABLE ChiTietGiaoHang
+ADD COLUMN ThanhTien DECIMAL(10, 2);
+UPDATE ChiTietGiaoHang
+SET ThanhTien = SLGiao * DonGiaGiao;
+
